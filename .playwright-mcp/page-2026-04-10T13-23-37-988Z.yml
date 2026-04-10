@@ -1,0 +1,103 @@
+- application [ref=e1]:
+  - iframe [ref=e2]:
+    
+  - iframe [ref=e3]:
+    
+  - banner "Menu bar" [ref=e4]:
+    - generic [ref=e7]:
+      - link "Sheets home" [ref=e9] [cursor=pointer]:
+        - /url: https://docs.google.com/spreadsheets/?usp=sheets_web
+      - generic [ref=e16]:
+        - generic "Cafe Ledger" [ref=e18]:
+          - generic [ref=e20]: Cafe Ledger
+          - 'button "Document status: Saved to Drive." [ref=e24]'
+        - generic [ref=e32]:
+          - button "Talha Hassan" [ref=e38]:
+            - img "Talha Hassan" [ref=e43] [cursor=pointer]
+          - generic [ref=e44]:
+            - button "Share. Anyone with the link. Anyone who has the link can access. No sign-in required." [disabled] [ref=e45]: Share
+            - button "Quick sharing actions" [disabled] [ref=e47]
+          - link "Sign in" [ref=e51] [cursor=pointer]:
+            - /url: https://accounts.google.com/ServiceLogin?service=wise&passive=1209600&osid=1&continue=https://docs.google.com/spreadsheets/d/1bPYVTxQO4PRqgRrUywMxtTb5eCWvq2RPUrrF2TyfJLM/edit?usp%3Dsharing&followup=https://docs.google.com/spreadsheets/d/1bPYVTxQO4PRqgRrUywMxtTb5eCWvq2RPUrrF2TyfJLM/edit?usp%3Dsharing&ltmpl=sheets&ec=GAZAmwI
+    - generic [ref=e52]:
+      - menubar [ref=e54]:
+        - menuitem "File" [ref=e55] [cursor=pointer]
+        - menuitem "Edit" [ref=e56] [cursor=pointer]
+        - menuitem "View" [ref=e57] [cursor=pointer]
+        - menuitem "Insert" [disabled] [ref=e58]
+        - menuitem "Format" [disabled] [ref=e59]
+        - menuitem "Data" [ref=e60] [cursor=pointer]
+        - menuitem "Tools" [ref=e61] [cursor=pointer]
+        - menuitem "Extensions" [disabled] [ref=e62]
+        - menuitem "Help" [ref=e63] [cursor=pointer]
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - toolbar "Search the menus (Option+/)" [ref=e66]:
+            - combobox "Menus" [ref=e68]
+          - toolbar "Main" [ref=e69]:
+            - button "Print (⌘P)" [ref=e70] [cursor=pointer]
+            - button "Filter views" [ref=e75] [cursor=pointer]
+            - combobox "Zoom" [ref=e84] [cursor=pointer]:
+              - option "Zoom list. 100% selected." [selected] [ref=e87]:
+                - textbox "Zoom" [ref=e88]: 100%
+            - button "Mode" [ref=e92] [cursor=pointer]:
+              - generic [ref=e93]: View only
+        - toolbar "Mode and view" [ref=e96]:
+          - button "Hide the menus (Ctrl+Shift+F)" [ref=e97] [cursor=pointer]
+    - generic [ref=e104]:
+      - generic "Name box (⌘ + J)" [ref=e105]:
+        - textbox [active] [ref=e106]: I1
+        - button "Name box menu button. Select one of the menu items to navigate to its corresponding named range." [ref=e108] [cursor=pointer]
+      - combobox [ref=e364]: Umair
+  - navigation "Sheet tab bar" [ref=e156]:
+    - toolbar [ref=e157]:
+      - button "All Sheets" [ref=e158] [cursor=pointer]
+    - toolbar [ref=e167]:
+      - button "Cafe Major Expenses" [ref=e168] [cursor=pointer]:
+        - generic [ref=e172]: Cafe Major Expenses
+      - button "Eid ul Fitr'26" [ref=e176] [cursor=pointer]:
+        - generic [ref=e180]: Eid ul Fitr'26
+      - button "Estimated Expenses" [ref=e184] [cursor=pointer]:
+        - generic [ref=e188]: Estimated Expenses
+      - button "Salaries Jan'25" [ref=e192] [cursor=pointer]:
+        - generic [ref=e196]: Salaries Jan'25
+      - button "Salaries Feb'25" [ref=e200] [cursor=pointer]:
+        - generic [ref=e204]: Salaries Feb'25
+      - button "Salaries March'25" [ref=e208] [cursor=pointer]:
+        - generic [ref=e212]: Salaries March'25
+      - button "Salaries April'25" [ref=e216] [cursor=pointer]:
+        - generic [ref=e220]: Salaries April'25
+      - button "Salaries May'25" [ref=e224] [cursor=pointer]:
+        - generic [ref=e228]: Salaries May'25
+      - button "Salaries June'25" [ref=e232] [cursor=pointer]:
+        - generic [ref=e236]: Salaries June'25
+      - button "Salaries July'25" [ref=e240] [cursor=pointer]:
+        - generic [ref=e244]: Salaries July'25
+      - button "Salaries August'25" [ref=e248] [cursor=pointer]:
+        - generic [ref=e252]: Salaries August'25
+      - button "Salaries September'25" [ref=e256] [cursor=pointer]:
+        - generic [ref=e260]: Salaries September'25
+      - button "Salaries October'25" [ref=e264] [cursor=pointer]:
+        - generic [ref=e268]: Salaries October'25
+      - button "Salaries November'25" [ref=e272] [cursor=pointer]:
+        - generic [ref=e276]: Salaries November'25
+      - button "Salaries December'25" [ref=e280] [cursor=pointer]:
+        - generic [ref=e284]: Salaries December'25
+      - button "Salaries January'26" [ref=e288] [cursor=pointer]:
+        - generic [ref=e292]: Salaries January'26
+      - button "Salaries February'26" [ref=e296] [cursor=pointer]:
+        - generic [ref=e300]: Salaries February'26
+      - button "Salaries March'26" [ref=e304]:
+        - generic [ref=e308]: Salaries March'26
+    - toolbar [ref=e312]:
+      - button "Scroll left" [ref=e313] [cursor=pointer]
+      - button "Scroll right" [disabled] [ref=e318]
+  - generic [ref=e323]:
+    - textbox
+  - link "Turn on screen reader support" [ref=e324] [cursor=pointer]:
+    - /url: "#"
+  - textbox [ref=e325]
+  - region
+  - region [ref=e326]: To enable screen reader support, press ⌘+Option+Z To learn about keyboard shortcuts, press ⌘slash
+  - generic [ref=e327]: Talha Hassan has joined the document.
+  - generic [ref=e365]: Name box. ⌘ + J. I1 selected. Type a cell range or named range and hit the Enter key to navigate to the specified range.
