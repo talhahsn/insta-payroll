@@ -1,0 +1,251 @@
+{
+  "by_month": [
+    {
+      "month": "2025-01",
+      "rows": [
+        { "name": "Arif", "baseSalary": 37200, "netFromPdf": 35600 },
+        { "name": "Raja", "baseSalary": 37200, "netFromPdf": 46500 },
+        { "name": "Waqas", "baseSalary": 35000, "netFromPdf": 35000 },
+        { "name": "Hafeez", "baseSalary": 24000, "netFromPdf": 22400 },
+        { "name": "Zohaib", "baseSalary": 10000, "netFromPdf": 10000 },
+        { "name": "Hassan", "baseSalary": 25000, "netFromPdf": 500 },
+        { "name": "Shahzaib", "baseSalary": 25000, "netFromPdf": 1112 }
+      ],
+      "grandTotal": 151112
+    },
+    {
+      "month": "2025-02",
+      "rows": [
+        { "name": "Arif", "baseSalary": 37200, "netFromPdf": 31510 },
+        { "name": "Raja", "baseSalary": 37200, "netFromPdf": 39580 },
+        { "name": "Waqas", "baseSalary": 35000, "netFromPdf": 35000 },
+        { "name": "Hafeez", "baseSalary": 24000, "netFromPdf": 22400 },
+        { "name": "Kashif", "baseSalary": 22500, "netFromPdf": 12600 },
+        { "name": "Zohaib", "baseSalary": 10000, "netFromPdf": 27000 }
+      ],
+      "grandTotal": 168090
+    },
+    {
+      "month": "2025-03",
+      "rows": [
+        { "name": "Arif", "baseSalary": 40000, "netFromPdf": 6500 },
+        { "name": "Raja", "baseSalary": 46500, "netFromPdf": 38750 },
+        { "name": "Waqas", "baseSalary": 35000, "netFromPdf": 36700 },
+        { "name": "Hafeez", "baseSalary": 24000, "netFromPdf": 26000 },
+        { "name": "Kashif", "baseSalary": 22500, "netFromPdf": 24375 },
+        { "name": "Zohaib", "baseSalary": 10000, "netFromPdf": 15970 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 11500 }
+      ],
+      "grandTotal": 159795
+    },
+    {
+      "month": "2025-04",
+      "rows": [
+        { "name": "Arif", "baseSalary": 40000, "netFromPdf": 20800 },
+        { "name": "Raja", "baseSalary": 46500, "netFromPdf": 44000 },
+        { "name": "Waqas", "baseSalary": 35000, "netFromPdf": 35000 },
+        { "name": "Hafeez", "baseSalary": 24000, "netFromPdf": 12000 },
+        { "name": "Kashif", "baseSalary": 22500, "netFromPdf": 22500 },
+        { "name": "Zohaib", "baseSalary": 10000, "netFromPdf": 30000 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 7500 }
+      ],
+      "grandTotal": 171800
+    },
+    {
+      "month": "2025-05",
+      "rows": [
+        { "name": "Arif", "baseSalary": 40000, "netFromPdf": 36800 },
+        { "name": "Raja", "baseSalary": 46500, "netFromPdf": 46500 },
+        { "name": "Waqas", "baseSalary": 35000, "netFromPdf": 40000 },
+        { "name": "Mujeeb", "baseSalary": 24000, "netFromPdf": 24000 },
+        { "name": "Kashif", "baseSalary": 22500, "netFromPdf": 23250 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 30000 },
+        { "name": "Husnain", "baseSalary": 25000, "netFromPdf": 13300 }
+      ],
+      "grandTotal": 213850
+    },
+    {
+      "month": "2025-06",
+      "rows": [
+        { "name": "Arif", "baseSalary": 40000, "netFromPdf": 39450 },
+        { "name": "Raja", "baseSalary": 46500, "netFromPdf": 36550 },
+        { "name": "Waqas", "baseSalary": 38000, "netFromPdf": 37304 },
+        { "name": "Mujeeb", "baseSalary": 24000, "netFromPdf": 24000 },
+        { "name": "Kashif", "baseSalary": 22500, "netFromPdf": 21868 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 30000 },
+        { "name": "Hassan", "baseSalary": 25000, "netFromPdf": 13300 }
+      ],
+      "grandTotal": 202472
+    },
+    {
+      "month": "2025-07",
+      "rows": [
+        { "name": "Arif", "baseSalary": 40000, "netFromPdf": 7900 },
+        { "name": "Raja", "baseSalary": 46500, "netFromPdf": 17600 },
+        { "name": "Mujeeb", "baseSalary": 24000, "netFromPdf": 8525 },
+        { "name": "Kashif", "baseSalary": 25000, "netFromPdf": 1500 },
+        { "name": "Hassan", "baseSalary": 25000, "netFromPdf": 30400 },
+        { "name": "Waqas", "baseSalary": 38000, "netFromPdf": 31078 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 30000 },
+        { "name": "Mudassir", "baseSalary": 30000, "netFromPdf": 9542 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 10000 },
+        { "name": "Hamza Ahmed", "baseSalary": 18000, "netFromPdf": 9600 },
+        { "name": "Aaliyan", "baseSalary": 50000, "netFromPdf": 9600 },
+        { "name": "Nazeer", "baseSalary": 27000, "netFromPdf": 4800 },
+        { "name": "Anees", "baseSalary": 25500, "netFromPdf": 10608 },
+        { "name": "M. Ali (Paratha)", "baseSalary": 45000, "netFromPdf": 23680 }
+      ],
+      "grandTotal": 204833
+    },
+    {
+      "month": "2025-08",
+      "rows": [
+        { "name": "Waqas", "baseSalary": 38000, "netFromPdf": 32000 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 30000 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 28000 },
+        { "name": "Arif (Dishwasher)", "baseSalary": 18000, "netFromPdf": 9100 },
+        { "name": "Sheharyar", "baseSalary": 18000, "netFromPdf": 6900 },
+        { "name": "Hamza Ahmed", "baseSalary": 18000, "netFromPdf": 6600 },
+        { "name": "Aaliyan", "baseSalary": 50000, "netFromPdf": 45000 },
+        { "name": "Umair", "baseSalary": 25000, "netFromPdf": 23316 },
+        { "name": "Nazeer", "baseSalary": 27000, "netFromPdf": 26400 },
+        { "name": "Ehtesham", "baseSalary": 25500, "netFromPdf": 21250 },
+        { "name": "Anees", "baseSalary": 25500, "netFromPdf": 23368 },
+        { "name": "M. Ali (Paratha)", "baseSalary": 45000, "netFromPdf": 0 }
+      ],
+      "grandTotal": 251934
+    },
+    {
+      "month": "2025-09",
+      "rows": [
+        { "name": "Huzaifa", "baseSalary": 18000, "netFromPdf": 10000 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 30000 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 31000 },
+        { "name": "Arif (Dishwasher)", "baseSalary": 18000, "netFromPdf": 17500 },
+        { "name": "Abdul Nabi", "baseSalary": 18000, "netFromPdf": 10260 },
+        { "name": "Sheharyar", "baseSalary": 18000, "netFromPdf": 6900 },
+        { "name": "Hamza Ahmed", "baseSalary": 18000, "netFromPdf": 6600 },
+        { "name": "Umair", "baseSalary": 25000, "netFromPdf": 32500 },
+        { "name": "Nazeer", "baseSalary": 27000, "netFromPdf": 26000 },
+        { "name": "Ehtesham", "baseSalary": 28000, "netFromPdf": 24500 },
+        { "name": "Anees", "baseSalary": 25500, "netFromPdf": 25157 }
+      ],
+      "grandTotal": 220417
+    },
+    {
+      "month": "2025-10",
+      "rows": [
+        { "name": "Huzaifa", "baseSalary": 17000, "netFromPdf": 10000 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 50000 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 13000 },
+        { "name": "Sabir", "baseSalary": 18000, "netFromPdf": 2268 },
+        { "name": "Rizwan", "baseSalary": 18000, "netFromPdf": 13800 },
+        { "name": "Abdul Nabi", "baseSalary": 18000, "netFromPdf": 16100 },
+        { "name": "Umair", "baseSalary": 25000, "netFromPdf": 33334 },
+        { "name": "Irshad", "baseSalary": 22000, "netFromPdf": 18348 },
+        { "name": "Ehtesham", "baseSalary": 28000, "netFromPdf": 28900 },
+        { "name": "Anees", "baseSalary": 25500, "netFromPdf": 23211 },
+        { "name": "Security Company", "baseSalary": 10000, "netFromPdf": 10000 },
+        { "name": "Ahmed (Paratha)", "baseSalary": 36000, "netFromPdf": 4800 }
+      ],
+      "grandTotal": 223761
+    },
+    {
+      "month": "2025-11",
+      "rows": [
+        { "name": "Huzaifa", "baseSalary": 17000, "netFromPdf": 10000 },
+        { "name": "Security Company", "baseSalary": 10000, "netFromPdf": 20000 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 55000 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 4000 },
+        { "name": "Abdul Nabi", "baseSalary": 18000, "netFromPdf": 15000 },
+        { "name": "Sher Muhammad", "baseSalary": 30000, "netFromPdf": 7000 },
+        { "name": "Aaliyan", "baseSalary": 50000, "netFromPdf": 62000 },
+        { "name": "Umair", "baseSalary": 25000, "netFromPdf": 33334 },
+        { "name": "Irshad", "baseSalary": 22000, "netFromPdf": 25000 },
+        { "name": "Nazeer", "baseSalary": 27000, "netFromPdf": 12600 },
+        { "name": "Ehtesham", "baseSalary": 30000, "netFromPdf": 25000 },
+        { "name": "Sanwal", "baseSalary": 25000, "netFromPdf": 25000 }
+      ],
+      "grandTotal": 293934
+    },
+    {
+      "month": "2025-12",
+      "rows": [
+        { "name": "Security Company", "baseSalary": 10000, "netFromPdf": 20000 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 13000 },
+        { "name": "Huzaifa", "baseSalary": 17000, "netFromPdf": 10000 },
+        { "name": "Hamza Khan", "baseSalary": 18000, "netFromPdf": 17400 },
+        { "name": "Abdul Nabi", "baseSalary": 18000, "netFromPdf": 14000 },
+        { "name": "Sher Muhammad", "baseSalary": 30000, "netFromPdf": 28000 },
+        { "name": "Umair", "baseSalary": 25000, "netFromPdf": 31668 },
+        { "name": "Irshad", "baseSalary": 22000, "netFromPdf": 25000 },
+        { "name": "Nazeer", "baseSalary": 27000, "netFromPdf": 22000 },
+        { "name": "Ehtesham", "baseSalary": 30000, "netFromPdf": 29000 },
+        { "name": "Anees", "baseSalary": 25500, "netFromPdf": 8800 },
+        { "name": "Sanwal", "baseSalary": 25000, "netFromPdf": 21000 }
+      ],
+      "grandTotal": 239868
+    },
+    {
+      "month": "2026-01",
+      "rows": [
+        { "name": "Security Company", "baseSalary": 10000, "netFromPdf": 20000 },
+        { "name": "Yusuf", "baseSalary": 30000, "netFromPdf": 60000 },
+        { "name": "Huzaifa", "baseSalary": 17000, "netFromPdf": 14500 },
+        { "name": "Hamza Khan", "baseSalary": 18000, "netFromPdf": 20000 },
+        { "name": "Ubaid", "baseSalary": 33000, "netFromPdf": 9072 },
+        { "name": "Abdul Nabi", "baseSalary": 18000, "netFromPdf": 7400 },
+        { "name": "Sher Muhammad", "baseSalary": 30000, "netFromPdf": 13000 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 10200 },
+        { "name": "Aaliyan", "baseSalary": 50000, "netFromPdf": 60000 },
+        { "name": "Umair", "baseSalary": 25000, "netFromPdf": 20012 },
+        { "name": "Irshad", "baseSalary": 22000, "netFromPdf": 18332 },
+        { "name": "Nazeer", "baseSalary": 27000, "netFromPdf": 4400 },
+        { "name": "Ehtesham", "baseSalary": 30000, "netFromPdf": 13000 },
+        { "name": "Anees", "baseSalary": 25500, "netFromPdf": 22590 },
+        { "name": "Sanwal", "baseSalary": 25000, "netFromPdf": 19925 }
+      ],
+      "grandTotal": 312431
+    },
+    {
+      "month": "2026-02",
+      "rows": [
+        { "name": "Security Company", "baseSalary": 10000, "netFromPdf": 29349 },
+        { "name": "Ameer", "baseSalary": 20000, "netFromPdf": 7075 },
+        { "name": "Huzaifa", "baseSalary": 17000, "netFromPdf": 7075 },
+        { "name": "Hamza Khan", "baseSalary": 18000, "netFromPdf": 10000 },
+        { "name": "Ubaid", "baseSalary": 33000, "netFromPdf": 16842 },
+        { "name": "Bilawal", "baseSalary": 50000, "netFromPdf": 14742 },
+        { "name": "Aaliyan", "baseSalary": 50000, "netFromPdf": 18900 },
+        { "name": "Umair", "baseSalary": 25000, "netFromPdf": 45542 },
+        { "name": "Irshad", "baseSalary": 22000, "netFromPdf": 25028 },
+        { "name": "Fatima", "baseSalary": 22000, "netFromPdf": 21684 },
+        { "name": "Ehtesham", "baseSalary": 30000, "netFromPdf": 13946 },
+        { "name": "Rana", "baseSalary": 20000, "netFromPdf": 19500 },
+        { "name": "Sanwal", "baseSalary": 25000, "netFromPdf": 7137 }
+      ],
+      "grandTotal": 236820
+    },
+    {
+      "month": "2026-03",
+      "rows": [
+        { "name": "Security Company", "baseSalary": 10000, "netFromPdf": 10000 },
+        { "name": "Ameer", "baseSalary": 20000, "netFromPdf": 11500 },
+        { "name": "Huzaifa", "baseSalary": 17000, "netFromPdf": 10000 },
+        { "name": "Hamza Khan", "baseSalary": 18000, "netFromPdf": 4002 },
+        { "name": "Ubaid", "baseSalary": 33000, "netFromPdf": 18134 },
+        { "name": "Bilawal", "baseSalary": 55000, "netFromPdf": 28100 },
+        { "name": "Aaliyan", "baseSalary": 55000, "netFromPdf": 55534 },
+        { "name": "Umair", "baseSalary": 27500, "netFromPdf": 55002 },
+        { "name": "Irshad", "baseSalary": 22000, "netFromPdf": 27334 },
+        { "name": "Fatima", "baseSalary": 22000, "netFromPdf": 23121 },
+        { "name": "Ehtesham", "baseSalary": 30000, "netFromPdf": 27200 },
+        { "name": "Sajid", "baseSalary": 17000, "netFromPdf": 4907 },
+        { "name": "Rana", "baseSalary": 20000, "netFromPdf": 1602 },
+        { "name": "Sanwal", "baseSalary": 27500, "netFromPdf": 25774 },
+        { "name": "Hanif", "baseSalary": 60000, "netFromPdf": 48000 }
+      ],
+      "grandTotal": 350210
+    }
+  ]
+}

@@ -1,0 +1,460 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Multi-tenancy ────────────────────────────────────────────────────────────
+
+model Restaurant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  /// Public URL to a logo image (e.g. https). Shown in shell header when set.
+  logoUrl   String?
+  phone     String?
+  address   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roles            Role[]
+  users            User[]
+  employees        Employee[]
+  employeeTypes    EmployeeType[]
+  jobRoles         JobRole[]
+  counters         Counter[]
+  festivalEvents   FestivalEvent[]
+  monthlyPayrolls  MonthlyPayroll[]
+  salaryHistories  SalaryHistory[]
+  leaves           Leave[]
+  advances         Advance[]
+  shiftCoverages   ShiftCoverage[]
+  securityDeposits SecurityDeposit[]
+  festivalBonuses  FestivalBonus[]
+  disbursements    Disbursement[]
+  salaryHolds      SalaryHold[]
+  auditLogs        AuditLog[]
+
+  @@map("restaurants")
+}
+
+// ─── Auth & Users ─────────────────────────────────────────────────────────────
+
+model Role {
+  id           String           @id @default(cuid())
+  name         String
+  description  String?
+  isProtected  Boolean          @default(false) // Super Admin — cannot be edited/deleted
+  restaurantId String
+  restaurant   Restaurant       @relation(fields: [restaurantId], references: [id])
+  permissions  RolePermission[]
+  users        User[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([name, restaurantId])
+  @@map("roles")
+}
+
+model RolePermission {
+  id       String @id @default(cuid())
+  roleId   String
+  role     Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource String
+  action   String
+
+  @@unique([roleId, resource, action])
+  @@map("role_permissions")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  supabaseUid  String     @unique
+  email        String
+  name         String
+  roleId       String
+  role         Role       @relation(fields: [roleId], references: [id])
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  createdLeaves        Leave[]          @relation("LeaveCreatedBy")
+  createdAdvances      Advance[]        @relation("AdvanceCreatedBy")
+  createdCoverages     ShiftCoverage[]  @relation("CoverageCreatedBy")
+  createdDisbursements Disbursement[]   @relation("DisbursementCreatedBy")
+  lockedPayrolls       MonthlyPayroll[] @relation("PayrollLockedBy")
+  unlockedPayrolls     MonthlyPayroll[] @relation("PayrollUnlockedBy")
+  auditLogs            AuditLog[]
+
+  @@map("users")
+}
+
+// ─── Employee Types (configurable) ───────────────────────────────────────────
+
+model EmployeeType {
+  id                  String     @id @default(cuid())
+  name                String
+  isDailyRate         Boolean    @default(true)
+  isLeaveEligible     Boolean    @default(true)
+  isDepositEligible   Boolean    @default(true)
+  isHiddenFromManager Boolean    @default(false)
+  hasBillingCycle     Boolean    @default(false)
+  restaurantId        String
+  restaurant          Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  employees Employee[]
+
+  @@unique([name, restaurantId])
+  @@map("employee_types")
+}
+
+// ─── Job Roles ────────────────────────────────────────────────────────────────
+
+model JobRole {
+  id           String            @id @default(cuid())
+  name         String
+  restaurantId String
+  restaurant   Restaurant        @relation(fields: [restaurantId], references: [id])
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  employees    EmployeeJobRole[]
+
+  @@unique([name, restaurantId])
+  @@map("job_roles")
+}
+
+// ─── Employee ↔ Job Role (many-to-many) ──────────────────────────────────────
+
+model EmployeeJobRole {
+  id         String   @id @default(cuid())
+  employeeId String
+  jobRoleId  String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  jobRole    JobRole  @relation(fields: [jobRoleId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now())
+
+  @@unique([employeeId, jobRoleId])
+  @@map("employee_job_roles")
+}
+
+// ─── Counters (for shift coverage) ───────────────────────────────────────────
+
+model Counter {
+  id           String     @id @default(cuid())
+  name         String
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  coverages ShiftCoverage[]
+
+  @@unique([name, restaurantId])
+  @@map("counters")
+}
+
+// ─── Employees ────────────────────────────────────────────────────────────────
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Employee {
+  id             String         @id @default(cuid())
+  employeeCode   String?        @unique
+  name           String
+  phone          String?
+  employeeTypeId String
+  employeeType   EmployeeType   @relation(fields: [employeeTypeId], references: [id])
+  jobRoles       EmployeeJobRole[]
+  status         EmployeeStatus @default(ACTIVE)
+  joinedAt       DateTime
+  leftAt         DateTime?
+  currentSalary  Float
+  leaveBalance   Float          @default(0)
+  depositDaysM1  Int            @default(7)
+  depositDaysM2  Int            @default(7)
+  billingCycleDay Int?
+  notes          String?
+  restaurantId   String
+  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  salaryHistory       SalaryHistory[]
+  monthlyPayrolls     MonthlyPayroll[]
+  leavesAsEmployee    Leave[]
+  advancesAsEmployee  Advance[]
+  coveragesAsAbsent   ShiftCoverage[]  @relation("AbsentEmployee")
+  coveragesAsCovering ShiftCoverage[]  @relation("CoveringEmployee")
+  securityDeposit     SecurityDeposit?
+  salaryHolds         SalaryHold[]
+
+  @@map("employees")
+}
+
+// ─── Salary History ───────────────────────────────────────────────────────────
+
+model SalaryHistory {
+  id            String     @id @default(cuid())
+  employeeId    String
+  employee      Employee   @relation(fields: [employeeId], references: [id])
+  amount        Float
+  effectiveFrom DateTime
+  restaurantId  String
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt     DateTime   @default(now())
+
+  @@map("salary_history")
+}
+
+// ─── Monthly Payroll ──────────────────────────────────────────────────────────
+
+enum PayrollStatus {
+  PENDING
+  PARTIALLY_PAID
+  DONE
+}
+
+model MonthlyPayroll {
+  id           String        @id @default(cuid())
+  employeeId   String
+  employee     Employee      @relation(fields: [employeeId], references: [id])
+  month        DateTime      // Always 1st of month
+  baseSalary   Float         // Salary snapshot at month start
+  status       PayrollStatus @default(PENDING)
+  amountPaid   Float         @default(0)
+  lockedAt     DateTime?
+  lockedById   String?
+  lockedBy     User?         @relation("PayrollLockedBy", fields: [lockedById], references: [id])
+  unlockReason String?
+  unlockedAt   DateTime?
+  unlockedById String?
+  unlockedBy   User?         @relation("PayrollUnlockedBy", fields: [unlockedById], references: [id])
+  restaurantId String
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  leaves                 Leave[]
+  advances               Advance[]
+  coveragesAsAbsent      ShiftCoverage[]  @relation("PayrollAbsent")
+  coveragesAsCovering    ShiftCoverage[]  @relation("PayrollCovering")
+  disbursements          Disbursement[]
+  securityDepositM1      SecurityDeposit? @relation("DepositMonth1")
+  securityDepositM2      SecurityDeposit? @relation("DepositMonth2")
+  securityDepositRelease SecurityDeposit? @relation("DepositRelease")
+  festivalBonuses        FestivalBonus[]
+  salaryHoldReleases     SalaryHold[]     @relation("SalaryHoldRelease")
+
+  @@unique([employeeId, month])
+  @@map("monthly_payrolls")
+}
+
+// ─── Leaves ───────────────────────────────────────────────────────────────────
+
+model Leave {
+  id               String         @id @default(cuid())
+  employeeId       String
+  employee         Employee       @relation(fields: [employeeId], references: [id])
+  monthlyPayrollId String
+  monthlyPayroll   MonthlyPayroll @relation(fields: [monthlyPayrollId], references: [id])
+  dateFrom         DateTime
+  dateTo           DateTime
+  isHalfDay        Boolean        @default(false)
+  notes            String?
+  createdById      String
+  createdBy        User           @relation("LeaveCreatedBy", fields: [createdById], references: [id])
+  restaurantId     String
+  restaurant       Restaurant     @relation(fields: [restaurantId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@map("leaves")
+}
+
+// ─── Advances & Food Expenses ─────────────────────────────────────────────────
+
+enum AdvanceType {
+  CASH
+  FOOD
+}
+
+model Advance {
+  id               String         @id @default(cuid())
+  employeeId       String
+  employee         Employee       @relation(fields: [employeeId], references: [id])
+  monthlyPayrollId String
+  monthlyPayroll   MonthlyPayroll @relation(fields: [monthlyPayrollId], references: [id])
+  amount           Float
+  type             AdvanceType    @default(CASH)
+  date             DateTime
+  notes            String?
+  createdById      String
+  createdBy        User           @relation("AdvanceCreatedBy", fields: [createdById], references: [id])
+  restaurantId     String
+  restaurant       Restaurant     @relation(fields: [restaurantId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@map("advances")
+}
+
+// ─── Shift Coverage ───────────────────────────────────────────────────────────
+
+model ShiftCoverage {
+  id                 String         @id @default(cuid())
+  absentEmployeeId   String
+  absentEmployee     Employee       @relation("AbsentEmployee", fields: [absentEmployeeId], references: [id])
+  coveringEmployeeId String
+  coveringEmployee   Employee       @relation("CoveringEmployee", fields: [coveringEmployeeId], references: [id])
+  counterId          String
+  counter            Counter        @relation(fields: [counterId], references: [id])
+  dateFrom           DateTime
+  dateTo             DateTime
+  ratePerDay         Float
+  payrollIdAbsent    String
+  payrollAbsent      MonthlyPayroll @relation("PayrollAbsent", fields: [payrollIdAbsent], references: [id])
+  payrollIdCovering  String
+  payrollCovering    MonthlyPayroll @relation("PayrollCovering", fields: [payrollIdCovering], references: [id])
+  createdById        String
+  createdBy          User           @relation("CoverageCreatedBy", fields: [createdById], references: [id])
+  restaurantId       String
+  restaurant         Restaurant     @relation(fields: [restaurantId], references: [id])
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@map("shift_coverages")
+}
+
+// ─── Security Deposit ─────────────────────────────────────────────────────────
+
+model SecurityDeposit {
+  id                  String          @id @default(cuid())
+  employeeId          String          @unique
+  employee            Employee        @relation(fields: [employeeId], references: [id])
+  month1PayrollId     String?         @unique
+  month1Payroll       MonthlyPayroll? @relation("DepositMonth1", fields: [month1PayrollId], references: [id])
+  month1Withheld      Float           @default(0)
+  month2PayrollId     String?         @unique
+  month2Payroll       MonthlyPayroll? @relation("DepositMonth2", fields: [month2PayrollId], references: [id])
+  month2Withheld      Float           @default(0)
+  totalWithheld       Float           @default(0)
+  releasedAt          DateTime?
+  releasedInPayrollId String?         @unique
+  releasedInPayroll   MonthlyPayroll? @relation("DepositRelease", fields: [releasedInPayrollId], references: [id])
+  restaurantId        String
+  restaurant          Restaurant      @relation(fields: [restaurantId], references: [id])
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@map("security_deposits")
+}
+
+// ─── Festival Events & Bonuses ────────────────────────────────────────────────
+
+enum BonusType {
+  FIXED
+  DAYS_SALARY
+}
+
+model FestivalEvent {
+  id             String     @id @default(cuid())
+  name           String
+  eventDate      DateTime
+  bonusType      BonusType
+  bonusValue     Float
+  appliesToMonth DateTime   // 1st of the month this shows in payroll
+  restaurantId   String
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  bonuses FestivalBonus[]
+
+  @@map("festival_events")
+}
+
+model FestivalBonus {
+  id               String         @id @default(cuid())
+  festivalEventId  String
+  festivalEvent    FestivalEvent  @relation(fields: [festivalEventId], references: [id])
+  monthlyPayrollId String
+  monthlyPayroll   MonthlyPayroll @relation(fields: [monthlyPayrollId], references: [id])
+  amount           Float
+  restaurantId     String
+  restaurant       Restaurant     @relation(fields: [restaurantId], references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@unique([festivalEventId, monthlyPayrollId])
+  @@map("festival_bonuses")
+}
+
+// ─── Disbursements ────────────────────────────────────────────────────────────
+
+model Disbursement {
+  id               String         @id @default(cuid())
+  monthlyPayrollId String
+  monthlyPayroll   MonthlyPayroll @relation(fields: [monthlyPayrollId], references: [id])
+  amount           Float
+  paidAt           DateTime
+  notes            String?
+  recordedById     String
+  recordedBy       User           @relation("DisbursementCreatedBy", fields: [recordedById], references: [id])
+  restaurantId     String
+  restaurant       Restaurant     @relation(fields: [restaurantId], references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@map("disbursements")
+}
+
+// ─── Salary Holds (withheld salary + carry-forward) ──────────────────────────
+
+model SalaryHold {
+  id           String          @id @default(cuid())
+  employeeId   String
+  employee     Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant      @relation(fields: [restaurantId], references: [id])
+
+  days         Float           // days withheld (informational)
+  ratePerDay   Float           // rate at time of withholding (informational)
+  amount       Float           // actual amount = days × ratePerDay
+  reason       String?         // optional label e.g. "Security hold" or "Carry-forward Mar 2026"
+  heldForMonth DateTime        // 1st of the month this salary relates to
+
+  // Set when the hold is paid out in a payroll
+  releasedInPayrollId String?
+  releasedInPayroll   MonthlyPayroll? @relation("SalaryHoldRelease", fields: [releasedInPayrollId], references: [id])
+  releasedAt          DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("salary_holds")
+}
+
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  action       String
+  entityType   String
+  entityId     String
+  oldValue     Json?
+  newValue     Json?
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@map("audit_logs")
+}
