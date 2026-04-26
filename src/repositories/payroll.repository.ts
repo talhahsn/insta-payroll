@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { startOfMonth } from 'date-fns'
+import { toMonthKey } from '@/lib/month-key'
 
 /**
  * Find or create a MonthlyPayroll record for an employee + month.
@@ -10,7 +10,7 @@ export async function getOrCreateMonthlyPayroll(
   month: Date,
   restaurantId: string
 ) {
-  const monthStart = startOfMonth(month)
+  const monthStart = toMonthKey(month)
 
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },

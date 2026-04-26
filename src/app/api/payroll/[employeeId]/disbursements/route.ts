@@ -5,7 +5,7 @@ import { can } from '@/lib/permissions'
 import { toApiError, AppError } from '@/lib/errors'
 import { getOrCreateMonthlyPayroll } from '@/repositories/payroll.repository'
 import { prisma } from '@/lib/prisma'
-import { startOfMonth } from 'date-fns'
+import { monthKeyFromYearMonth } from '@/lib/month-key'
 
 const schema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/),
@@ -30,7 +30,8 @@ export async function POST(
     })
     if (!employee) throw new AppError('NOT_FOUND', 'Employee not found')
 
-    const month = startOfMonth(new Date(body.month))
+    const [year, monthNum] = body.month.split('-').map(Number)
+    const month = monthKeyFromYearMonth(year, monthNum)
     const payroll = await getOrCreateMonthlyPayroll(employeeId, month, user.restaurantId)
 
     const disbursement = await prisma.$transaction(async (tx) => {

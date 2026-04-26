@@ -5,11 +5,11 @@ import { can } from '@/lib/permissions'
 import { AppError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
-import { startOfMonth } from 'date-fns'
+import { toMonthKey } from '@/lib/month-key'
 
 const releaseSchema = z.object({
   action: z.literal('release'),
-  month: z.string().transform((v) => startOfMonth(new Date(v))),
+  month: z.string().transform((v) => toMonthKey(new Date(v))),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

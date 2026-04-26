@@ -11,6 +11,7 @@ import { join } from 'path'
 import { endOfMonth, startOfMonth } from 'date-fns'
 import { prisma } from '@/lib/prisma'
 import { calculatePayroll } from '@/services/payroll.service'
+import { monthKeyFromYearMonth, toMonthKey } from '@/lib/month-key'
 
 function loadLedgerJson(): { by_month: Array<{ month: string; rows: Array<{ name: string; baseSalary: number; netFromPdf: number }> }> } {
   const p = join(process.cwd(), 'data/cafe-ledger-migration-preview.json')
@@ -24,7 +25,7 @@ function loadLedgerJson(): { by_month: Array<{ month: string; rows: Array<{ name
 
 function parseMonthKey(key: string): Date {
   const [y, m] = key.split('-').map(Number)
-  return startOfMonth(new Date(y, m - 1, 1))
+  return monthKeyFromYearMonth(y, m)
 }
 
 const NOTE_BACKFILL = 'Cafe ledger backfill (historical migration)'
@@ -133,7 +134,7 @@ async function applyRow(params: {
   actorId: string
 }) {
   const { name, baseSalary, targetNet, month, monthKey, restaurantId, actorId } = params
-  const monthStart = startOfMonth(month)
+  const monthStart = toMonthKey(month)
   const payDate = endOfMonth(month)
 
   const employee = await prisma.employee.findFirst({
@@ -257,7 +258,7 @@ async function main() {
 
   for (const block of data.by_month) {
     const m = parseMonthKey(block.month)
-    const monthStart = startOfMonth(m)
+    const monthStart = toMonthKey(m)
     await deleteAllPayrollsForMonth(restaurant.id, monthStart)
     console.log('Month', block.month, `(${block.rows.length} rows) — replaced month in DB`)
     for (const row of block.rows) {

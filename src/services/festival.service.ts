@@ -1,4 +1,3 @@
-import { startOfMonth } from 'date-fns'
 import { prisma } from '@/lib/prisma'
 import { AppError } from '@/lib/errors'
 import { can } from '@/lib/permissions'
@@ -7,6 +6,7 @@ import type { AuthUser } from '@/types/auth.types'
 import type { BonusType } from '@prisma/client'
 import * as repo from '@/repositories/festival.repository'
 import { getOrCreateMonthlyPayroll } from '@/repositories/payroll.repository'
+import { toMonthKey } from '@/lib/month-key'
 
 export async function getFestivalEvents(user: AuthUser) {
   return repo.findFestivalEvents(user.restaurantId)
@@ -31,7 +31,7 @@ export async function createFestivalEvent(data: CreateFestivalEventData, user: A
   if (!can(user, 'festivals', 'manage')) throw new AppError('FORBIDDEN', 'Permission denied')
   if (data.bonusValue <= 0) throw new AppError('VALIDATION', 'Bonus value must be greater than zero')
 
-  const appliesToMonth = startOfMonth(data.appliesToMonth)
+  const appliesToMonth = toMonthKey(data.appliesToMonth)
 
   const event = await repo.createFestivalEvent({
     ...data,

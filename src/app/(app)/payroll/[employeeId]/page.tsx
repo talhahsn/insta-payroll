@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { PayrollDetailPageSkeleton } from '@/components/loading/table-page-skeletons'
-import { format, startOfMonth } from 'date-fns'
+import { format } from 'date-fns'
 import { ArrowLeft } from 'lucide-react'
 import { getAuthUser } from '@/lib/auth'
 import { parseMonthFromQuery } from '@/lib/month-query'
@@ -22,6 +22,7 @@ import { Separator } from '@/components/ui/separator'
 import { RecordPaymentDialog } from '@/components/payroll/record-payment-dialog'
 import { AppContentScrollPage } from '@/components/layout/list-page-layout'
 import { formatPkr } from '@/lib/format-money'
+import { toMonthKey } from '@/lib/month-key'
 
 const fmt = formatPkr
 
@@ -92,7 +93,7 @@ async function PayrollDetailPageContent({
 
   const calc = await calculatePayroll(employeeId, month, viewType, authUser.restaurantId)
 
-  const monthStart = startOfMonth(month)
+  const monthStart = toMonthKey(month)
   const payroll = await prisma.monthlyPayroll.findUnique({
     where: { employeeId_month: { employeeId, month: monthStart } },
     include: {

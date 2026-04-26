@@ -3,8 +3,8 @@ import { can } from '@/lib/permissions'
 import * as repo from '@/repositories/employee.repository'
 import type { EmployeeSortField } from '@/repositories/employee.repository'
 import type { AuthUser } from '@/types/auth.types'
-import { startOfMonth } from 'date-fns'
 import { prisma } from '@/lib/prisma'
+import { toMonthKey } from '@/lib/month-key'
 
 // statusFilter: true=active only, false=inactive only, undefined=all
 export async function getEmployees(user: AuthUser, statusFilter: boolean | undefined = true) {
@@ -133,7 +133,7 @@ export async function markEmployeeLeft(
   const employee = await repo.findEmployeeById(employeeId, user.restaurantId)
   if (!employee) throw new AppError('NOT_FOUND', 'Employee not found')
 
-  const releaseMonth = startOfMonth(leftAt)
+  const releaseMonth = toMonthKey(leftAt)
 
   const releasePayroll = await prisma.monthlyPayroll.upsert({
     where: { employeeId_month: { employeeId, month: releaseMonth } },

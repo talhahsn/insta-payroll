@@ -8,6 +8,7 @@ import {
 import { prisma } from '@/lib/prisma'
 import { AppError } from '@/lib/errors'
 import type { PayrollCalculation } from '@/types/payroll.types'
+import { toMonthKey } from '@/lib/month-key'
 
 const DAILY_RATE_DIVISOR = 30
 
@@ -98,6 +99,7 @@ export async function calculatePayroll(
 ): Promise<PayrollCalculation> {
   const monthStart = startOfMonth(month)
   const monthEnd = endOfMonth(month)
+  const monthKey = toMonthKey(month)
 
   // Fetch employee with all month data in parallel
   const [employee, payroll, monthlyHolds] = await Promise.all([
@@ -109,7 +111,7 @@ export async function calculatePayroll(
       },
     }),
     prisma.monthlyPayroll.findUnique({
-      where: { employeeId_month: { employeeId, month: monthStart } },
+      where: { employeeId_month: { employeeId, month: monthKey } },
       include: {
         leaves: true,
         advances: true,
@@ -123,7 +125,7 @@ export async function calculatePayroll(
       },
     }),
     prisma.salaryHold.findMany({
-      where: { employeeId, heldForMonth: monthStart },
+      where: { employeeId, heldForMonth: monthKey },
     }),
   ])
 
@@ -260,6 +262,7 @@ export async function calculateMonthlyRoster(
   canViewAll: boolean
 ): Promise<PayrollCalculation[]> {
   const monthStart = startOfMonth(month)
+  const monthKey = toMonthKey(month)
   const monthEnd = endOfMonth(month)
 
   const employeeVisFilter = !canViewAll
@@ -271,7 +274,7 @@ export async function calculateMonthlyRoster(
   const ledgerSourced = await prisma.monthlyPayroll.findFirst({
     where: {
       restaurantId,
-      month: monthStart,
+      month: monthKey,
       OR: [
         { disbursements: { some: { notes: { contains: LEDGER_DISBURSEMENT_SNIPPET } } } },
         { advances: { some: { notes: { contains: 'Cafe ledger' } } } },
@@ -289,7 +292,7 @@ export async function calculateMonthlyRoster(
               await prisma.monthlyPayroll.findMany({
                 where: {
                   restaurantId,
-                  month: monthStart,
+                  month: monthKey,
                   ...(!canViewAll && {
                     employee: { employeeType: { isHiddenFromManager: false } },
                   }),
