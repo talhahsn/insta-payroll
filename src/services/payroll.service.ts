@@ -68,23 +68,18 @@ export function countLeaveDays(
  * Open periods use the latest salary history row effective on or before month end
  * (so mid-month raises apply) or `currentSalary`.
  */
-async function resolveBaseSalaryForPeriod(
-  employeeId: string,
-  monthEnd: Date,
+function resolveBaseSalaryForPeriod(
   currentSalary: number,
+  latestSalaryHistoryAmount: number | null | undefined,
   payroll: {
     status: 'PENDING' | 'PARTIALLY_PAID' | 'DONE'
     baseSalary: number
   } | null
-): Promise<number> {
+): number {
   if (payroll?.status === 'DONE') {
     return payroll.baseSalary
   }
-  const row = await prisma.salaryHistory.findFirst({
-    where: { employeeId, effectiveFrom: { lte: monthEnd } },
-    orderBy: { effectiveFrom: 'desc' },
-  })
-  return row?.amount ?? currentSalary
+  return latestSalaryHistoryAmount ?? currentSalary
 }
 
 /**
@@ -108,6 +103,12 @@ export async function calculatePayroll(
       include: {
         employeeType: true,
         securityDeposit: true,
+        salaryHistory: {
+          where: { effectiveFrom: { lte: monthEnd } },
+          orderBy: { effectiveFrom: 'desc' },
+          take: 1,
+          select: { amount: true },
+        },
       },
     }),
     prisma.monthlyPayroll.findUnique({
@@ -116,11 +117,7 @@ export async function calculatePayroll(
         leaves: true,
         advances: true,
         coveragesAsCovering: true,
-        securityDepositM1: true,
-        securityDepositM2: true,
-        securityDepositRelease: true,
         festivalBonuses: true,
-        disbursements: true,
         salaryHoldReleases: true,
       },
     }),
@@ -132,10 +129,9 @@ export async function calculatePayroll(
   if (!employee) throw new AppError('NOT_FOUND', 'Employee not found')
   if (employee.restaurantId !== restaurantId) throw new AppError('FORBIDDEN', 'Access denied')
 
-  const baseSalary = await resolveBaseSalaryForPeriod(
-    employeeId,
-    monthEnd,
+  const baseSalary = resolveBaseSalaryForPeriod(
     employee.currentSalary,
+    employee.salaryHistory[0]?.amount,
     payroll
   )
   const dailyRate = getDailyRate(baseSalary)
@@ -208,10 +204,7 @@ export async function calculatePayroll(
   )
 
   // ── Disbursements ─────────────────────────────────────────────────────────
-  const amountPaid = (payroll?.disbursements ?? []).reduce(
-    (sum, d) => sum + d.amount,
-    0
-  )
+  const amountPaid = payroll?.amountPaid ?? 0
 
   // ── Totals ────────────────────────────────────────────────────────────────
   const grossEarned = baseEarned + coverageBonus + securityDepositRelease + festivalBonus + salaryHoldRelease
@@ -308,7 +301,16 @@ export async function calculateMonthlyRoster(
             ...baseWhere,
             id: { in: ledgerIds },
           },
-          select: { id: true },
+          include: {
+            employeeType: true,
+            securityDeposit: true,
+            salaryHistory: {
+              where: { effectiveFrom: { lte: monthEnd } },
+              orderBy: { effectiveFrom: 'desc' },
+              take: 1,
+              select: { amount: true },
+            },
+          },
           orderBy: { name: 'asc' },
         })
       })()
@@ -320,13 +322,152 @@ export async function calculateMonthlyRoster(
             { status: 'INACTIVE', leftAt: { gte: monthStart, lte: monthEnd } },
           ],
         },
-        select: { id: true },
+        include: {
+          employeeType: true,
+          securityDeposit: true,
+          salaryHistory: {
+            where: { effectiveFrom: { lte: monthEnd } },
+            orderBy: { effectiveFrom: 'desc' },
+            take: 1,
+            select: { amount: true },
+          },
+        },
         orderBy: { name: 'asc' },
       })
 
-  const results = await Promise.all(
-    employees.map((e) => calculatePayroll(e.id, month, viewType, restaurantId))
-  )
+  const employeeIds = employees.map((e) => e.id)
+
+  const [payrolls, holds] = await Promise.all([
+    prisma.monthlyPayroll.findMany({
+      where: {
+        restaurantId,
+        month: monthKey,
+        employeeId: { in: employeeIds },
+      },
+      include: {
+        leaves: true,
+        advances: true,
+        coveragesAsCovering: true,
+        festivalBonuses: true,
+        salaryHoldReleases: true,
+      },
+    }),
+    prisma.salaryHold.findMany({
+      where: {
+        employeeId: { in: employeeIds },
+        heldForMonth: monthKey,
+      },
+      select: { employeeId: true, amount: true },
+    }),
+  ])
+
+  const payrollByEmployee = new Map(payrolls.map((p) => [p.employeeId, p]))
+  const holdsByEmployee = new Map<string, number>()
+  for (const h of holds) {
+    holdsByEmployee.set(h.employeeId, (holdsByEmployee.get(h.employeeId) ?? 0) + h.amount)
+  }
+
+  const results: PayrollCalculation[] = employees.map((employee) => {
+    const payroll = payrollByEmployee.get(employee.id) ?? null
+    const baseSalary = resolveBaseSalaryForPeriod(
+      employee.currentSalary,
+      employee.salaryHistory[0]?.amount,
+      payroll
+    )
+    const dailyRate = getDailyRate(baseSalary)
+
+    const workingDays = calculateWorkingDays(
+      monthStart,
+      monthEnd,
+      employee.joinedAt,
+      employee.leftAt,
+      viewType
+    )
+    const baseEarned = dailyRate * workingDays
+
+    const leaves = payroll?.leaves ?? []
+    const leaveDays = countLeaveDays(leaves, monthStart, monthEnd)
+    const freeLeaves = Math.min(leaveDays, Math.max(0, employee.leaveBalance))
+    const chargeableLeaves = Math.max(0, leaveDays - freeLeaves)
+    const leaveDeduction = chargeableLeaves * dailyRate
+
+    const coverages = payroll?.coveragesAsCovering ?? []
+    const coverageBonus = coverages.reduce((sum, c) => {
+      const days = differenceInCalendarDays(c.dateTo, c.dateFrom) + 1
+      return sum + c.ratePerDay * days
+    }, 0)
+
+    const advances = payroll?.advances ?? []
+    const advancesTotal = advances
+      .filter((a) => a.type === 'CASH')
+      .reduce((sum, a) => sum + a.amount, 0)
+    const foodExpensesTotal = advances
+      .filter((a) => a.type === 'FOOD')
+      .reduce((sum, a) => sum + a.amount, 0)
+
+    let securityDepositDeduction = 0
+    let securityDepositRelease = 0
+    if (employee.employeeType.isDepositEligible && employee.securityDeposit) {
+      const deposit = employee.securityDeposit
+      if (deposit.month1PayrollId === payroll?.id) {
+        securityDepositDeduction = deposit.month1Withheld
+      } else if (deposit.month2PayrollId === payroll?.id) {
+        securityDepositDeduction = deposit.month2Withheld
+      }
+      if (deposit.releasedInPayrollId === payroll?.id) {
+        securityDepositRelease = deposit.totalWithheld
+      }
+    }
+
+    const festivalBonus = (payroll?.festivalBonuses ?? []).reduce(
+      (sum, b) => sum + b.amount,
+      0
+    )
+    const salaryHoldDeduction = holdsByEmployee.get(employee.id) ?? 0
+    const salaryHoldRelease = (payroll?.salaryHoldReleases ?? []).reduce(
+      (sum, h) => sum + h.amount,
+      0
+    )
+    const amountPaid = payroll?.amountPaid ?? 0
+
+    const grossEarned =
+      baseEarned + coverageBonus + securityDepositRelease + festivalBonus + salaryHoldRelease
+    const totalDeductions =
+      leaveDeduction +
+      advancesTotal +
+      foodExpensesTotal +
+      securityDepositDeduction +
+      salaryHoldDeduction
+    const netPayable = grossEarned - totalDeductions
+    const remainingToPay = netPayable - amountPaid
+
+    return {
+      employeeId: employee.id,
+      employeeName: employee.name,
+      month: monthStart,
+      viewType,
+      baseSalary,
+      dailyRate,
+      workingDays,
+      baseEarned,
+      leaveDays,
+      freeLeaves,
+      leaveDeduction,
+      coverageBonus,
+      advancesTotal,
+      foodExpensesTotal,
+      securityDepositDeduction,
+      securityDepositRelease,
+      festivalBonus,
+      salaryHoldDeduction,
+      salaryHoldRelease,
+      grossEarned,
+      totalDeductions,
+      netPayable,
+      amountPaid,
+      remainingToPay,
+    }
+  })
 
   return results
 }

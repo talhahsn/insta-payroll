@@ -116,9 +116,15 @@ export async function findEmployeesPage(
 
   return prisma.employee.findMany({
     where: buildEmployeeListWhere(restaurantId, statusFilter, q, hideRestrictedTypes),
-    include: {
-      employeeType: true,
-      ...jobRolesInclude,
+    select: {
+      id: true,
+      name: true,
+      employeeCode: true,
+      joinedAt: true,
+      currentSalary: true,
+      status: true,
+      employeeType: { select: { name: true } },
+      jobRoles: { select: { jobRole: { select: { name: true } } } },
     },
     orderBy,
     skip,

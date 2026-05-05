@@ -33,6 +33,7 @@ import { buildPagedEmployeesSearchParams, type PagedEmployeeSort } from '@/lib/e
 import { cn } from '@/lib/utils'
 import type { PagedEmployeeRow } from '@/types/employee-list'
 import { UserX } from 'lucide-react'
+import { DataTableSkeleton } from '@/components/ui/data-table-skeleton'
 
 type StatusFilter = 'active' | 'inactive' | 'all'
 type EmpRow = PagedEmployeeRow
@@ -206,6 +207,33 @@ export function EmployeesDataTable({ status, canManage }: { status: StatusFilter
 
   const loading = isPending || (isFetching && rows.length === 0)
 
+  if (loading) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+        <div className="shrink-0">
+          <Input
+            type="search"
+            placeholder="Search name, type, or role…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="max-w-sm"
+            aria-label="Filter employees"
+          />
+        </div>
+        <div className="min-h-0 flex-1 overflow-auto rounded-md border border-border/80 bg-card">
+          <DataTableSkeleton
+            columns={7}
+            rows={10}
+            actionColumn
+            stickyHeader
+            headerLabels={['Name', 'Role', 'Type', 'Joined', 'Salary', 'Status', 'Actions']}
+            numericColumnIndices={[4]}
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       <div className="shrink-0">
@@ -259,12 +287,6 @@ export function EmployeesDataTable({ status, canManage }: { status: StatusFilter
                   <Button type="button" variant="link" className="h-auto p-0" onClick={() => refetch()}>
                     Retry
                   </Button>
-                </TableCell>
-              </TableRow>
-            ) : loading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-muted-foreground py-10 text-center text-sm">
-                  Loading…
                 </TableCell>
               </TableRow>
             ) : rows.length === 0 ? (

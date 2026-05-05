@@ -32,6 +32,7 @@ import { formatPkr } from '@/lib/format-money'
 import { buildPayrollRosterSearchParams, type PayrollRosterSort } from '@/lib/payroll-roster-query'
 import { cn } from '@/lib/utils'
 import type { PayrollCalculation } from '@/types/payroll.types'
+import { PayrollTableSkeleton } from '@/components/payroll/payroll-table-skeleton'
 
 const fmt = formatPkr
 
@@ -192,6 +193,26 @@ export function PayrollRosterDataTable({
     getCoreRowModel: getCoreRowModel(),
   })
 
+  if (loading) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+        <div className="shrink-0">
+          <Input
+            type="search"
+            placeholder="Search by employee name…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="max-w-sm"
+            aria-label="Filter payroll roster"
+          />
+        </div>
+        <div className={cn(tableCompactClassname, 'min-h-0 flex-1 overflow-auto rounded-md border bg-card')}>
+          <PayrollTableSkeleton />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       <div className="shrink-0">
@@ -246,12 +267,6 @@ export function PayrollRosterDataTable({
                   <Button type="button" variant="link" className="h-auto p-0" onClick={() => refetch()}>
                     Retry
                   </Button>
-                </TableCell>
-              </TableRow>
-            ) : loading ? (
-              <TableRow>
-                <TableCell colSpan={13} className="text-muted-foreground py-10 text-center text-sm">
-                  Loading…
                 </TableCell>
               </TableRow>
             ) : data.length === 0 ? (

@@ -5,14 +5,14 @@ import { can } from '@/lib/permissions'
 import { AppError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
-import { toMonthKey } from '@/lib/month-key'
+import { monthKeyFromInput } from '@/lib/month-key'
 
 const createSchema = z.object({
   employeeId: z.string(),
   days: z.number().positive(),
   ratePerDay: z.number().positive(),
   reason: z.string().optional(),
-  heldForMonth: z.string().transform((v) => toMonthKey(new Date(v))),
+  heldForMonth: z.string().transform(monthKeyFromInput),
 })
 
 export async function POST(req: NextRequest) {
