@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { toast } from 'sonner'
+import { invalidatePayrollRosterQueries } from '@/lib/invalidate-payroll-roster-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,6 +24,7 @@ import { cn } from '@/lib/utils'
 
 export function FestivalForm() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
   const [name, setName] = useState('')
   const [bonusType, setBonusType] = useState<'FIXED' | 'DAYS_SALARY'>('FIXED')
@@ -56,6 +59,7 @@ export function FestivalForm() {
         return
       }
       toast.success('Festival event created — bonuses generated for all employees')
+      await invalidatePayrollRosterQueries(queryClient)
       router.push('/festivals')
       router.refresh()
     } finally {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 import { toApiError } from '@/lib/errors'
+import { revalidatePayrollRoster } from '@/lib/payroll-roster-cache'
 import * as service from '@/services/festival.service'
 
 export async function DELETE(
@@ -11,6 +12,7 @@ export async function DELETE(
     const user = await getAuthUser()
     const { id } = await params
     await service.deleteFestivalEvent(id, user)
+    revalidatePayrollRoster(user.restaurantId)
     return new NextResponse(null, { status: 204 })
   } catch (err) {
     const { status, body } = toApiError(err)

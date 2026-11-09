@@ -153,8 +153,9 @@ async function applyRow(params: {
       baseSalary,
       status: 'PENDING',
       restaurantId,
+      isLedgerBackfill: true,
     },
-    update: { baseSalary },
+    update: { baseSalary, isLedgerBackfill: true },
   })
 
   await clearPriorLedgerData(payroll.id)

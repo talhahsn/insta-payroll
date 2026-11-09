@@ -15,24 +15,18 @@ export default async function NewCoveragePage() {
 
   const canViewRestrictedTypes = can(authUser, 'employees', 'view_all')
 
-  const [absentEmployees, allActiveEmployees, counters] = await Promise.all([
-    prisma.employee.findMany({
-      where: {
-        restaurantId: authUser.restaurantId,
-        status: 'ACTIVE',
-        ...(canViewRestrictedTypes
-          ? {}
-          : { employeeType: { isHiddenFromManager: false } }),
-      },
-      select: { id: true, name: true, currentSalary: true },
-      orderBy: { name: 'asc' },
-    }),
+  const [allActiveEmployees, counters] = await Promise.all([
     prisma.employee.findMany({
       where: {
         restaurantId: authUser.restaurantId,
         status: 'ACTIVE',
       },
-      select: { id: true, name: true, currentSalary: true },
+      select: {
+        id: true,
+        name: true,
+        currentSalary: true,
+        employeeType: { select: { isHiddenFromManager: true } },
+      },
       orderBy: { name: 'asc' },
     }),
     prisma.counter.findMany({
@@ -41,6 +35,17 @@ export default async function NewCoveragePage() {
       orderBy: { name: 'asc' },
     }),
   ])
+
+  const coveringEmployees = allActiveEmployees.map(({ id, name, currentSalary }) => ({
+    id,
+    name,
+    currentSalary,
+  }))
+  const absentEmployees = canViewRestrictedTypes
+    ? coveringEmployees
+    : allActiveEmployees
+        .filter((e) => !e.employeeType.isHiddenFromManager)
+        .map(({ id, name, currentSalary }) => ({ id, name, currentSalary }))
 
   return (
     <AppContentScrollPage className="mx-auto w-full max-w-2xl">
@@ -51,7 +56,7 @@ export default async function NewCoveragePage() {
         </div>
         <CoverageForm
           absentEmployees={absentEmployees}
-          coveringEmployees={allActiveEmployees}
+          coveringEmployees={coveringEmployees}
           counters={counters}
         />
       </div>

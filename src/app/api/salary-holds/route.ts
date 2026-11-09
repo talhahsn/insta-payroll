@@ -3,6 +3,7 @@ import { getAuthUser } from '@/lib/auth'
 import { toApiError } from '@/lib/errors'
 import { can } from '@/lib/permissions'
 import { AppError } from '@/lib/errors'
+import { revalidatePayrollRoster } from '@/lib/payroll-roster-cache'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { monthKeyFromInput } from '@/lib/month-key'
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
         heldForMonth: body.heldForMonth,
       },
     })
+    revalidatePayrollRoster(user.restaurantId)
     return NextResponse.json(hold, { status: 201 })
   } catch (err) {
     const { status, body } = toApiError(err)

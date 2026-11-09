@@ -9,6 +9,7 @@ export function DeleteCoverageButton({ id }: { id: string }) {
       confirmMessage="Delete this coverage record?"
       successMessage="Coverage deleted"
       errorFallback="Failed to delete coverage"
+      invalidateKeys={['coverage']}
     />
   )
 }

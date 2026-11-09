@@ -3,6 +3,7 @@ import { getAuthUser } from '@/lib/auth'
 import { toApiError } from '@/lib/errors'
 import { can } from '@/lib/permissions'
 import { AppError } from '@/lib/errors'
+import { revalidatePayrollRoster } from '@/lib/payroll-roster-cache'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { monthKeyFromInput } from '@/lib/month-key'
@@ -48,6 +49,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         releasedAt: new Date(),
       },
     })
+    revalidatePayrollRoster(user.restaurantId)
     return NextResponse.json(updated)
   } catch (err) {
     const { status, body } = toApiError(err)
@@ -68,6 +70,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     if (hold.releasedInPayrollId) throw new AppError('VALIDATION', 'Cannot delete a released hold')
 
     await prisma.salaryHold.delete({ where: { id } })
+    revalidatePayrollRoster(user.restaurantId)
     return NextResponse.json({ ok: true })
   } catch (err) {
     const { status, body } = toApiError(err)

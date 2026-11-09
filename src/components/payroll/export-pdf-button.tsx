@@ -4,6 +4,7 @@ import { Download } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { useCan, useRestaurant } from '@/components/providers/permissions-provider'
 import { getErrorMessageFromResponse } from '@/lib/api-client'
 import { formatMoneyAmount } from '@/lib/format-money'
 import { buildPayrollRosterSearchParams } from '@/lib/payroll-roster-query'
@@ -12,9 +13,6 @@ import type { PayrollCalculation } from '@/types/payroll.types'
 interface Props {
   month: Date
   viewType: 'LIVE' | 'EXPECTED'
-  restaurantName: string
-  restaurantPhone?: string | null
-  restaurantAddress?: string | null
   /** `yyyy-MM` for `/api/payroll/roster` (loads full filtered roster) */
   monthParam: string
 }
@@ -24,11 +22,16 @@ const fmt = formatMoneyAmount
 export function ExportPdfButton({
   month,
   viewType,
-  restaurantName,
-  restaurantPhone,
-  restaurantAddress,
   monthParam,
 }: Props) {
+  const canExport = useCan('payroll', 'export')
+  const restaurant = useRestaurant()
+  const restaurantName = restaurant.name
+  const restaurantPhone = restaurant.phone
+  const restaurantAddress = restaurant.address
+
+  if (!canExport) return null
+
   async function handleExport() {
     const params = buildPayrollRosterSearchParams({
       month,

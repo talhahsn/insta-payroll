@@ -42,7 +42,8 @@ export async function createLeave(data: CreateLeaveData, user: AuthUser) {
   const payroll = await getOrCreateMonthlyPayroll(
     data.employeeId,
     data.dateFrom,
-    user.restaurantId
+    user.restaurantId,
+    employee.currentSalary
   )
 
   const days = leaveDays(data.dateFrom, data.dateTo, data.isHalfDay)

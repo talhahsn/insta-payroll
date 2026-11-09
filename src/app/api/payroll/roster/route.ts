@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { startOfMonth } from 'date-fns'
 import { z } from 'zod'
+import { unstable_cache } from 'next/cache'
 import { getAuthUser } from '@/lib/auth'
 import { parseMonthFromQuery } from '@/lib/month-query'
 import { toApiError } from '@/lib/errors'
 import { can } from '@/lib/permissions'
+import { payrollRosterTag } from '@/lib/payroll-roster-cache'
 import {
   buildPayrollRosterPage,
   calculateMonthlyRoster,
@@ -12,6 +14,19 @@ import {
 } from '@/services/payroll.service'
 
 const sortSchema = z.enum(['name', 'base', 'net'])
+
+function getCachedMonthlyRoster(
+  monthIso: string,
+  viewType: 'LIVE' | 'EXPECTED',
+  restaurantId: string,
+  canViewAll: boolean
+) {
+  return unstable_cache(
+    async () => calculateMonthlyRoster(new Date(monthIso), viewType, restaurantId, canViewAll),
+    ['payroll-roster-v2', monthIso, viewType, restaurantId, String(canViewAll)],
+    { revalidate: 30, tags: [payrollRosterTag(restaurantId)] }
+  )()
+}
 
 /**
  * GET — paged / filtered payroll roster for a month.
@@ -31,7 +46,12 @@ export async function GET(req: NextRequest) {
     const viewType = sp.get('view') === 'EXPECTED' ? 'EXPECTED' : 'LIVE'
     const canViewAll = can(user, 'employees', 'view_all')
 
-    const full = await calculateMonthlyRoster(month, viewType, user.restaurantId, canViewAll)
+    const full = await getCachedMonthlyRoster(
+      month.toISOString(),
+      viewType,
+      user.restaurantId,
+      canViewAll
+    )
 
     const all = sp.get('all') === '1' || sp.get('all') === 'true'
     const q = sp.get('q') ?? undefined

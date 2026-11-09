@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { toast } from 'sonner'
+import { invalidatePayrollRosterQueries } from '@/lib/invalidate-payroll-roster-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -41,6 +43,7 @@ const DAILY_RATE_DIVISOR = 30
 
 export function CoverageForm({ absentEmployees, coveringEmployees, counters }: Props) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
   const [absentId, setAbsentId] = useState('')
   const [coveringId, setCoveringId] = useState('')
@@ -86,6 +89,8 @@ export function CoverageForm({ absentEmployees, coveringEmployees, counters }: P
         return
       }
       toast.success('Coverage recorded')
+      await queryClient.invalidateQueries({ queryKey: ['coverage'] })
+      await invalidatePayrollRosterQueries(queryClient)
       router.push('/coverage')
       router.refresh()
     } finally {

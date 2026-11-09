@@ -85,24 +85,24 @@ async function PayrollDetailPageContent({
   const month = parseMonthFromQuery(monthParam)
   const viewType = viewParam === 'EXPECTED' ? 'EXPECTED' : 'LIVE'
 
-  const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, restaurantId: authUser.restaurantId },
-    include: { jobRoles: { include: { jobRole: true } }, employeeType: true },
-  })
-  if (!employee) notFound()
-
-  const calc = await calculatePayroll(employeeId, month, viewType, authUser.restaurantId)
-
   const monthStart = toMonthKey(month)
-  const payroll = await prisma.monthlyPayroll.findUnique({
-    where: { employeeId_month: { employeeId, month: monthStart } },
-    include: {
-      disbursements: {
-        include: { recordedBy: { select: { name: true } } },
-        orderBy: { paidAt: 'desc' },
+  const [employee, calc, payroll] = await Promise.all([
+    prisma.employee.findFirst({
+      where: { id: employeeId, restaurantId: authUser.restaurantId },
+      include: { jobRoles: { include: { jobRole: true } }, employeeType: true },
+    }),
+    calculatePayroll(employeeId, month, viewType, authUser.restaurantId),
+    prisma.monthlyPayroll.findUnique({
+      where: { employeeId_month: { employeeId, month: monthStart } },
+      include: {
+        disbursements: {
+          include: { recordedBy: { select: { name: true } } },
+          orderBy: { paidAt: 'desc' },
+        },
       },
-    },
-  })
+    }),
+  ])
+  if (!employee) notFound()
 
   const backParams = new URLSearchParams()
   if (monthParam) backParams.set('month', monthParam)

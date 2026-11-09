@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getAuthUser } from '@/lib/auth'
 import { toApiError } from '@/lib/errors'
+import { revalidatePayrollRoster } from '@/lib/payroll-roster-cache'
 import * as service from '@/services/coverage.service'
 import { parseMonthFromQuery } from '@/lib/month-query'
 
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
     const user = await getAuthUser()
     const body = createSchema.parse(await req.json())
     const coverage = await service.createCoverage(body, user)
+    revalidatePayrollRoster(user.restaurantId)
     return NextResponse.json(coverage, { status: 201 })
   } catch (err) {
     const { status, body } = toApiError(err)

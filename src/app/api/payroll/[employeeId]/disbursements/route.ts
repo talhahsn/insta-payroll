@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getAuthUser } from '@/lib/auth'
 import { can } from '@/lib/permissions'
 import { toApiError, AppError } from '@/lib/errors'
+import { revalidatePayrollRoster } from '@/lib/payroll-roster-cache'
 import { getOrCreateMonthlyPayroll } from '@/repositories/payroll.repository'
 import { prisma } from '@/lib/prisma'
 import { parseYearMonthToLocalDate } from '@/lib/month-key'
@@ -60,6 +61,7 @@ export async function POST(
       return d
     })
 
+    revalidatePayrollRoster(user.restaurantId)
     return NextResponse.json(disbursement, { status: 201 })
   } catch (err) {
     const { status, body } = toApiError(err)

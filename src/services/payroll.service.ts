@@ -240,13 +240,11 @@ export async function calculatePayroll(
   }
 }
 
-const LEDGER_DISBURSEMENT_SNIPPET = 'Cafe ledger historical'
-
 /**
  * Calculate payroll for all active employees in a restaurant for a given month.
- * If this month was filled from a Cafe ledger migration (same markers as
- * `scripts/apply-cafe-ledger-history.ts`), the roster is only employees who
- * have a `MonthlyPayroll` for that month, so list totals match the JSON.
+ * If this month was filled from a Cafe ledger migration (`isLedgerBackfill`),
+ * the roster is only employees who have a `MonthlyPayroll` for that month,
+ * so list totals match the JSON.
  */
 export async function calculateMonthlyRoster(
   month: Date,
@@ -264,15 +262,34 @@ export async function calculateMonthlyRoster(
 
   const baseWhere = { restaurantId, ...employeeVisFilter }
 
+  const salaryHistoryInclude = {
+    employeeType: {
+      select: { isDepositEligible: true },
+    },
+    securityDeposit: {
+      select: {
+        month1PayrollId: true,
+        month2PayrollId: true,
+        month1Withheld: true,
+        month2Withheld: true,
+        releasedInPayrollId: true,
+        totalWithheld: true,
+      },
+    },
+    salaryHistory: {
+      where: { effectiveFrom: { lte: monthEnd } },
+      orderBy: { effectiveFrom: 'desc' as const },
+      take: 1,
+      select: { amount: true },
+    },
+  }
+
+  // Cheap equality flag (additive column) — replaces nested notes/contains probe.
   const ledgerSourced = await prisma.monthlyPayroll.findFirst({
     where: {
       restaurantId,
       month: monthKey,
-      OR: [
-        { disbursements: { some: { notes: { contains: LEDGER_DISBURSEMENT_SNIPPET } } } },
-        { advances: { some: { notes: { contains: 'Cafe ledger' } } } },
-        { festivalBonuses: { some: { festivalEvent: { name: { startsWith: 'Cafe ledger backfill' } } } } },
-      ],
+      isLedgerBackfill: true,
     },
     select: { id: true },
   })
@@ -286,6 +303,7 @@ export async function calculateMonthlyRoster(
                 where: {
                   restaurantId,
                   month: monthKey,
+                  isLedgerBackfill: true,
                   ...(!canViewAll && {
                     employee: { employeeType: { isHiddenFromManager: false } },
                   }),
@@ -301,16 +319,7 @@ export async function calculateMonthlyRoster(
             ...baseWhere,
             id: { in: ledgerIds },
           },
-          include: {
-            employeeType: true,
-            securityDeposit: true,
-            salaryHistory: {
-              where: { effectiveFrom: { lte: monthEnd } },
-              orderBy: { effectiveFrom: 'desc' },
-              take: 1,
-              select: { amount: true },
-            },
-          },
+          include: salaryHistoryInclude,
           orderBy: { name: 'asc' },
         })
       })()
@@ -322,16 +331,7 @@ export async function calculateMonthlyRoster(
             { status: 'INACTIVE', leftAt: { gte: monthStart, lte: monthEnd } },
           ],
         },
-        include: {
-          employeeType: true,
-          securityDeposit: true,
-          salaryHistory: {
-            where: { effectiveFrom: { lte: monthEnd } },
-            orderBy: { effectiveFrom: 'desc' },
-            take: 1,
-            select: { amount: true },
-          },
-        },
+        include: salaryHistoryInclude,
         orderBy: { name: 'asc' },
       })
 
@@ -344,12 +344,27 @@ export async function calculateMonthlyRoster(
         month: monthKey,
         employeeId: { in: employeeIds },
       },
-      include: {
-        leaves: true,
-        advances: true,
-        coveragesAsCovering: true,
-        festivalBonuses: true,
-        salaryHoldReleases: true,
+      select: {
+        id: true,
+        employeeId: true,
+        status: true,
+        baseSalary: true,
+        amountPaid: true,
+        leaves: {
+          select: { dateFrom: true, dateTo: true, isHalfDay: true },
+        },
+        advances: {
+          select: { type: true, amount: true },
+        },
+        coveragesAsCovering: {
+          select: { dateFrom: true, dateTo: true, ratePerDay: true },
+        },
+        festivalBonuses: {
+          select: { amount: true },
+        },
+        salaryHoldReleases: {
+          select: { amount: true },
+        },
       },
     }),
     prisma.salaryHold.findMany({

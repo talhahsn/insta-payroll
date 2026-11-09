@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { AppError } from '@/lib/errors'
@@ -6,8 +7,10 @@ import type { AuthUser } from '@/types/auth.types'
 /**
  * Get the current authenticated user with their DB profile, role, and permissions.
  * Throws UNAUTHORIZED if not logged in, NOT_FOUND if user record missing.
+ *
+ * Wrapped in React `cache()` so layout + page share one Supabase+Prisma hit per request.
  */
-export async function getAuthUser(): Promise<AuthUser> {
+export const getAuthUser = cache(async (): Promise<AuthUser> => {
   const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
 
@@ -41,4 +44,4 @@ export async function getAuthUser(): Promise<AuthUser> {
     restaurantId: dbUser.restaurantId,
     restaurant: dbUser.restaurant,
   }
-}
+})

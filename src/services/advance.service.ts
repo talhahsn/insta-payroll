@@ -28,7 +28,8 @@ export async function createAdvance(data: CreateAdvanceData, user: AuthUser) {
   const payroll = await getOrCreateMonthlyPayroll(
     data.employeeId,
     data.date,
-    user.restaurantId
+    user.restaurantId,
+    employee.currentSalary
   )
 
   return repo.createAdvance({

@@ -9,6 +9,7 @@ export function DeleteLeaveButton({ id }: { id: string }) {
       confirmMessage="Delete this leave record?"
       successMessage="Leave deleted"
       errorFallback="Failed to delete leave"
+      invalidateKeys={['leaves']}
     />
   )
 }

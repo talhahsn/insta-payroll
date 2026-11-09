@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { postJson } from '@/lib/api-client'
+import { invalidatePayrollRosterQueries } from '@/lib/invalidate-payroll-roster-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -42,6 +44,7 @@ const advanceFormSchema = z.object({
 
 export function AdvanceForm({ employees }: Props) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
   const [employeeId, setEmployeeId] = useState('')
   const [amount, setAmount] = useState('')
@@ -74,6 +77,8 @@ export function AdvanceForm({ employees }: Props) {
         notes: parsed.data.notes,
       })
       toast.success('Advance recorded')
+      await queryClient.invalidateQueries({ queryKey: ['advances'] })
+      await invalidatePayrollRosterQueries(queryClient)
       router.push('/advances')
       router.refresh()
     } catch (err) {

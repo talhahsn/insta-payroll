@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { toast } from 'sonner'
+import { invalidatePayrollRosterQueries } from '@/lib/invalidate-payroll-roster-query'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -31,6 +33,7 @@ interface Props {
 
 export function LeaveForm({ employees }: Props) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
   const [employeeId, setEmployeeId] = useState('')
   const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date())
@@ -65,6 +68,8 @@ export function LeaveForm({ employees }: Props) {
         return
       }
       toast.success('Leave recorded')
+      await queryClient.invalidateQueries({ queryKey: ['leaves'] })
+      await invalidatePayrollRosterQueries(queryClient)
       router.push('/leaves')
       router.refresh()
     } finally {

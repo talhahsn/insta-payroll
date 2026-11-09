@@ -1,19 +1,19 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { AppContentScrollPage } from '@/components/layout/list-page-layout'
 import { AdvanceForm } from '@/components/advances/advance-form'
 
 export default async function NewAdvancePage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
-  const dbUser = await prisma.user.findUnique({ where: { supabaseUid: user.id } })
-  if (!dbUser) redirect('/login')
+  let authUser
+  try {
+    authUser = await getAuthUser()
+  } catch {
+    redirect('/login')
+  }
 
   const employees = await prisma.employee.findMany({
-    where: { restaurantId: dbUser.restaurantId, status: 'ACTIVE' },
+    where: { restaurantId: authUser.restaurantId, status: 'ACTIVE' },
     select: { id: true, name: true },
     orderBy: { name: 'asc' },
   })

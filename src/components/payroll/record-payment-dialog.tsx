@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { CalendarIcon, PlusCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { invalidatePayrollRosterQueries } from '@/lib/invalidate-payroll-roster-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,6 +30,7 @@ interface Props {
 
 export function RecordPaymentDialog({ employeeId, monthStr, remaining }: Props) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [amount, setAmount] = useState(String(Math.round(remaining)))
@@ -57,6 +60,7 @@ export function RecordPaymentDialog({ employeeId, monthStr, remaining }: Props) 
       }
       toast.success('Payment recorded')
       setOpen(false)
+      await invalidatePayrollRosterQueries(queryClient)
       router.refresh()
     } finally {
       setLoading(false)

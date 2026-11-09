@@ -231,6 +231,9 @@ model MonthlyPayroll {
   baseSalary   Float         // Salary snapshot at month start
   status       PayrollStatus @default(PENDING)
   amountPaid   Float         @default(0)
+  /// True when this payroll row was created/filled by Cafe ledger historical migration.
+  /// Additive flag — does not change amounts; speeds roster employee scoping.
+  isLedgerBackfill Boolean   @default(false)
   lockedAt     DateTime?
   lockedById   String?
   lockedBy     User?         @relation("PayrollLockedBy", fields: [lockedById], references: [id])
@@ -255,6 +258,7 @@ model MonthlyPayroll {
   salaryHoldReleases     SalaryHold[]     @relation("SalaryHoldRelease")
 
   @@unique([employeeId, month])
+  @@index([restaurantId, month, isLedgerBackfill])
   @@map("monthly_payrolls")
 }
 

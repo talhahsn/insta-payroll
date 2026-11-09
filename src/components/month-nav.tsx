@@ -38,15 +38,20 @@ interface Props {
   month: Date
   /** When set (e.g. payroll page with table overlay), navigation uses this transition instead of an internal one. */
   transition?: MonthNavTransition
+  /**
+   * When set, month changes stay on the client (no RSC remount).
+   * Caller should sync the URL (e.g. history.replaceState).
+   */
+  onMonthChange?: (month: Date) => void
 }
 
-export function MonthNav({ month, transition: externalTransition }: Props) {
+export function MonthNav({ month, transition: externalTransition, onMonthChange }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
   const [internalPending, startInternal] = useTransition()
-  const isPending = externalTransition?.isPending ?? internalPending
+  const isPending = onMonthChange ? false : (externalTransition?.isPending ?? internalPending)
   const start = externalTransition?.startTransition ?? startInternal
 
   const m = startOfMonth(month)
@@ -58,6 +63,11 @@ export function MonthNav({ month, transition: externalTransition }: Props) {
 
   function navigate(yr: number, mon: number) {
     const target = startOfMonth(new Date(yr, mon, 1))
+    if (onMonthChange) {
+      onMonthChange(target)
+      setOpen(false)
+      return
+    }
     const params = new URLSearchParams(searchParams.toString())
     params.set('month', format(target, 'yyyy-MM'))
     start(() => {

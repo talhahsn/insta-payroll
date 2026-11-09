@@ -9,6 +9,7 @@ export function DeleteAdvanceButton({ id }: { id: string }) {
       confirmMessage="Delete this advance record?"
       successMessage="Advance deleted"
       errorFallback="Failed to delete advance"
+      invalidateKeys={['advances']}
     />
   )
 }

@@ -34,6 +34,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       roleId={authUser.roleId}
       roleName={authUser.roleName}
       isProtectedRole={authUser.isProtectedRole}
+      restaurant={{
+        id: authUser.restaurant.id,
+        name: authUser.restaurant.name,
+        phone: authUser.restaurant.phone,
+        address: authUser.restaurant.address,
+        logoUrl: authUser.restaurant.logoUrl,
+      }}
     >
       <SidebarProvider>
         <AppSidebar user={authUser} />
