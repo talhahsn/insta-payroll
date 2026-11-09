@@ -13,6 +13,9 @@ import {
   type PayrollRosterSortField,
 } from '@/services/payroll.service'
 
+/** Run near Supabase (ap-southeast-1). Also set project-wide in vercel.json. */
+export const preferredRegion = 'sin1'
+
 const sortSchema = z.enum(['name', 'base', 'net'])
 
 function getCachedMonthlyRoster(

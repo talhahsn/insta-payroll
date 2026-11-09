@@ -28,7 +28,7 @@ npm run dev
 
 Set these in local `.env.local` and in Vercel Project Settings:
 
-- `DATABASE_URL` - Postgres connection string used by app runtime (Prisma adapter/pg).
+- `DATABASE_URL` - Postgres connection string used by app runtime (Prisma adapter/pg). On Vercel, prefer the **Supabase transaction pooler** URL (`*.pooler.supabase.com`, port `6543`) so serverless functions do not exhaust connections.
 - `DIRECT_URL` - direct Postgres connection for Prisma CLI migrations (recommended).
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL.
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key.
@@ -47,6 +47,8 @@ npm run vercel-build
 ```
 
 5. Deploy.
+
+**Region:** `vercel.json` pins Functions to `sin1` (Singapore) to match a Supabase project in `ap-southeast-1`. If your DB is in another region, change both the Supabase region and `regions` / `preferredRegion` together — a US function talking to a Singapore DB often turns a fast local API into multi-second production calls.
 
 ### Supabase Auth Configuration (Required)
 

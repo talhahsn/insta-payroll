@@ -284,37 +284,24 @@ export async function calculateMonthlyRoster(
     },
   }
 
-  // Cheap equality flag (additive column) — replaces nested notes/contains probe.
-  const ledgerSourced = await prisma.monthlyPayroll.findFirst({
+  // One round-trip: if any ledger-backfill payrolls exist for the month, scope to those
+  // employees; otherwise load the normal active/left-in-month set.
+  const ledgerRows = await prisma.monthlyPayroll.findMany({
     where: {
       restaurantId,
       month: monthKey,
       isLedgerBackfill: true,
+      ...(!canViewAll && {
+        employee: { employeeType: { isHiddenFromManager: false } },
+      }),
     },
-    select: { id: true },
+    select: { employeeId: true },
   })
+  const ledgerIds = [...new Set(ledgerRows.map((r) => r.employeeId))]
 
-  const employees = ledgerSourced
-    ? await (async () => {
-        const ledgerIds = [
-          ...new Set(
-            (
-              await prisma.monthlyPayroll.findMany({
-                where: {
-                  restaurantId,
-                  month: monthKey,
-                  isLedgerBackfill: true,
-                  ...(!canViewAll && {
-                    employee: { employeeType: { isHiddenFromManager: false } },
-                  }),
-                },
-                select: { employeeId: true },
-              })
-            ).map((r) => r.employeeId)
-          ),
-        ]
-        if (ledgerIds.length === 0) return []
-        return prisma.employee.findMany({
+  const employees =
+    ledgerIds.length > 0
+      ? await prisma.employee.findMany({
           where: {
             ...baseWhere,
             id: { in: ledgerIds },
@@ -322,20 +309,20 @@ export async function calculateMonthlyRoster(
           include: salaryHistoryInclude,
           orderBy: { name: 'asc' },
         })
-      })()
-    : await prisma.employee.findMany({
-        where: {
-          ...baseWhere,
-          OR: [
-            { status: 'ACTIVE', joinedAt: { lte: monthEnd } },
-            { status: 'INACTIVE', leftAt: { gte: monthStart, lte: monthEnd } },
-          ],
-        },
-        include: salaryHistoryInclude,
-        orderBy: { name: 'asc' },
-      })
+      : await prisma.employee.findMany({
+          where: {
+            ...baseWhere,
+            OR: [
+              { status: 'ACTIVE', joinedAt: { lte: monthEnd } },
+              { status: 'INACTIVE', leftAt: { gte: monthStart, lte: monthEnd } },
+            ],
+          },
+          include: salaryHistoryInclude,
+          orderBy: { name: 'asc' },
+        })
 
   const employeeIds = employees.map((e) => e.id)
+  if (employeeIds.length === 0) return []
 
   const [payrolls, holds] = await Promise.all([
     prisma.monthlyPayroll.findMany({

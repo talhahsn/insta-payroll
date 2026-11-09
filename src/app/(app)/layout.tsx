@@ -7,6 +7,9 @@ import { RestaurantHeaderLogo } from '@/components/layout/restaurant-logo'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { PermissionsProvider } from '@/components/providers/permissions-provider'
 
+/** Colocate SSR/API with Supabase ap-southeast-1 (see vercel.json). */
+export const preferredRegion = 'sin1'
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   let authUser
   try {
